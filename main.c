@@ -15,7 +15,7 @@ uint8_t min(uint8_t a, uint8_t b)
     return a < b ? a : b;
 }
 
-uint8_t read_bits(struct bit_reader_state* state, uint8_t bits)
+uint8_t read_bits_8(struct bit_reader_state* state, uint8_t bits)
 {
     assert(bits < 9);
 
@@ -34,7 +34,7 @@ uint8_t read_bits(struct bit_reader_state* state, uint8_t bits)
     bits -= bits_this_byte;
     if(bits)
     {
-        byte |= read_bits(state, bits);
+        byte |= read_bits_8(state, bits);
     }
 
     return byte;
@@ -49,7 +49,7 @@ uint16_t read_bits_16(struct bit_reader_state* state, uint8_t bits)
     {
         uint8_t bits_this_iteration = min(bits, 8);
         bits -= bits_this_iteration;
-        ret |= read_bits(state, bits_this_iteration) << bits;
+        ret |= read_bits_8(state, bits_this_iteration) << bits;
     }
     return ret;
 }
@@ -68,12 +68,12 @@ int main(int argc, char* argv[])
     DEBUG_PRINT(((uint8_t*)(&twobytes))[1]);
 
     //test read_bits
-    DEBUG_PRINT(read_bits(&bit_reader, 4));
-    DEBUG_PRINT(read_bits(&bit_reader, 4));
-    DEBUG_PRINT(read_bits(&bit_reader, 4));
-    DEBUG_PRINT(read_bits(&bit_reader, 4));
-    DEBUG_PRINT(read_bits(&bit_reader, 4));
-    DEBUG_PRINT(read_bits(&bit_reader, 4));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 4));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 4));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 4));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 4));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 4));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 4));
 
     const int grouping = 3;
     bit_reader.byte_pointer = bits;
@@ -81,25 +81,25 @@ int main(int argc, char* argv[])
     for(int i = 0; i < sizeof(bits) * 8; ++i)
     {
         if(0 == (i % grouping)) printf(" ");
-        printf("%d", read_bits(&bit_reader, 1));
+        printf("%d", read_bits_8(&bit_reader, 1));
     }
     printf("\n");
     bit_reader.byte_pointer = bits;
     bit_reader.bit_offset = 0;
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
-    DEBUG_PRINT(read_bits(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 3));
 
     bit_reader.byte_pointer = bits;
     bit_reader.bit_offset = 0;
-    DEBUG_PRINT(read_bits(&bit_reader, 8));
-    DEBUG_PRINT(read_bits(&bit_reader, 8));
-    DEBUG_PRINT(read_bits(&bit_reader, 8));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 8));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 8));
+    DEBUG_PRINT(read_bits_8(&bit_reader, 8));
 
     bit_reader.byte_pointer = bits;
     bit_reader.bit_offset = 0;
