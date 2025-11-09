@@ -8,11 +8,16 @@ struct bit_reader_state
 {
     const uint8_t* byte_pointer;
     uint8_t bit_offset;
+    const uint8_t* out_of_bounds; //marker
 };
 
-struct bit_reader_state bit_reader_init(const uint8_t* bitbuffer)
+struct bit_reader_state bit_reader_init(const uint8_t* bitbuffer, size_t size)
 {
-    return (struct bit_reader_state){.byte_pointer = bitbuffer, .bit_offset = 0};
+    return (struct bit_reader_state){
+        .byte_pointer = bitbuffer,
+        .bit_offset = 0,
+        .out_of_bounds = bitbuffer + size,
+    };
 }
 
 uint8_t min(uint8_t a, uint8_t b)
@@ -23,6 +28,7 @@ uint8_t min(uint8_t a, uint8_t b)
 uint8_t read_bits_8(struct bit_reader_state* state, uint8_t bits)
 {
     assert(bits < 9);
+    assert(state->byte_pointer < state->out_of_bounds);
 
     uint8_t bits_this_byte = min(bits, 8 - state->bit_offset);
 
@@ -64,7 +70,7 @@ int main(int argc, char* argv[])
     printf("Read bits from array\n");
 
     uint8_t bits[] = {0xAB,0xCD, 0xEF};
-    struct bit_reader_state bit_reader = bit_reader_init(bits);
+    struct bit_reader_state bit_reader = bit_reader_init(bits, sizeof bits);
 
     //test platform byte order
     uint16_t twobytes = bits[0] << 8 | bits[1];
@@ -81,14 +87,14 @@ int main(int argc, char* argv[])
     DEBUG_PRINT(read_bits_8(&bit_reader, 4));
 
     const int grouping = 3;
-    bit_reader = bit_reader_init(bits);
+    bit_reader = bit_reader_init(bits, sizeof bits);
     for(int i = 0; i < sizeof(bits) * 8; ++i)
     {
         if(0 == (i % grouping)) printf(" ");
         printf("%d", read_bits_8(&bit_reader, 1));
     }
     printf("\n");
-    bit_reader = bit_reader_init(bits);
+    bit_reader = bit_reader_init(bits, sizeof bits);
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
@@ -98,15 +104,17 @@ int main(int argc, char* argv[])
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
 
-    bit_reader = bit_reader_init(bits);
+    bit_reader = bit_reader_init(bits, sizeof bits);
     DEBUG_PRINT(read_bits_8(&bit_reader, 8));
     DEBUG_PRINT(read_bits_8(&bit_reader, 8));
     DEBUG_PRINT(read_bits_8(&bit_reader, 8));
 
-    bit_reader = bit_reader_init(bits);
+    bit_reader = bit_reader_init(bits, sizeof bits);
     DEBUG_PRINT(read_bits_16(&bit_reader, 4));
     DEBUG_PRINT(read_bits_16(&bit_reader, 16));
     DEBUG_PRINT(read_bits_16(&bit_reader, 4));
+    DEBUG_PRINT(read_bits_16(&bit_reader, 1)); //assert on reading outside bit array
+    //TODO: Figure out how to catch assertions?
 
     return 0;
 }
