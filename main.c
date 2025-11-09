@@ -49,7 +49,7 @@ uint16_t read_bits_16(struct bit_reader_state* state, uint8_t bits)
     {
         uint8_t bits_this_iteration = min(bits, 8);
         bits -= bits_this_iteration;
-        ret += read_bits(state, bits_this_iteration) << bits;
+        ret |= read_bits(state, bits_this_iteration) << bits;
     }
     return ret;
 }
