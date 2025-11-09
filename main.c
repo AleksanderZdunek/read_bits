@@ -17,24 +17,26 @@ uint8_t min(uint8_t a, uint8_t b)
 
 uint8_t read_bits(struct bit_reader_state* state, uint8_t bits)
 {
-    assert(8 >= bits);
+    assert(bits < 9);
 
-    uint8_t byte = state->byte_pointer[0];
-    byte <<= state->bit_offset;
-    byte >>= (8 - bits);
-    uint8_t bits_read = min(bits, 8 - state->bit_offset);
-    state->bit_offset += bits;
+    uint8_t bits_this_byte = min(bits, 8 - state->bit_offset);
+
+    uint8_t byte =
+        ((state->byte_pointer[0] << state->bit_offset) & 0xFF) >> (8 - bits);
+
+    state->bit_offset += bits_this_byte;
     if(state->bit_offset > 7)
     {
         ++state->byte_pointer;
         state->bit_offset = 0;
     }
-    bits -= bits_read;
+
+    bits -= bits_this_byte;
     if(bits)
     {
-        byte &= (0xFF << bits);
-        byte |= read_bits(state, bits);
+        byte = (byte & (0xFF << bits)) | read_bits(state, bits);
     }
+
     return byte;
 }
 
@@ -78,5 +80,12 @@ int main(int argc, char* argv[])
     DEBUG_PRINT(read_bits(&bit_reader, 3));
     DEBUG_PRINT(read_bits(&bit_reader, 3));
     DEBUG_PRINT(read_bits(&bit_reader, 3));
+
+    bit_reader.byte_pointer = bits;
+    bit_reader.bit_offset = 0;
+    DEBUG_PRINT(read_bits(&bit_reader, 8));
+    DEBUG_PRINT(read_bits(&bit_reader, 8));
+    DEBUG_PRINT(read_bits(&bit_reader, 8));
+
     return 0;
 }
