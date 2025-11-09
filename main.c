@@ -34,7 +34,7 @@ uint8_t read_bits(struct bit_reader_state* state, uint8_t bits)
     bits -= bits_this_byte;
     if(bits)
     {
-        byte = (byte & (0xFF << bits)) | read_bits(state, bits);
+        byte |= read_bits(state, bits);
     }
 
     return byte;
