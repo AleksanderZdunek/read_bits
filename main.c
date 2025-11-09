@@ -44,23 +44,13 @@ uint16_t read_bits_16(struct bit_reader_state* state, uint8_t bits)
 {
     assert(bits < 17);
 
-    uint8_t bits_this_byte = min(bits, 8 - state->bit_offset);
-
-    uint16_t ret = ((state->byte_pointer[0] << state->bit_offset) & 0xFF) >> (8 - bits_this_byte);
-
-    state->bit_offset += bits_this_byte;
-    if(state->bit_offset > 7)
+    uint16_t ret = 0;
+    while(bits)
     {
-        ++state->byte_pointer;
-        state->bit_offset = 0;
+        uint8_t bits_this_iteration = min(bits, 8);
+        bits -= bits_this_iteration;
+        ret += read_bits(state, bits_this_iteration) << bits;
     }
-
-    bits -= bits_this_byte;
-    if(bits)
-    {
-        ret = (ret << bits) | read_bits_16(state, bits);
-    }
-
     return ret;
 }
 
