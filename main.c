@@ -6,9 +6,14 @@
 
 struct bit_reader_state
 {
-    uint8_t* byte_pointer;
+    const uint8_t* byte_pointer;
     uint8_t bit_offset;
 };
+
+struct bit_reader_state bit_reader_init(const uint8_t* bitbuffer)
+{
+    return (struct bit_reader_state){.byte_pointer = bitbuffer, .bit_offset = 0};
+}
 
 uint8_t min(uint8_t a, uint8_t b)
 {
@@ -59,7 +64,7 @@ int main(int argc, char* argv[])
     printf("Read bits from array\n");
 
     uint8_t bits[] = {0xAB,0xCD, 0xEF};
-    struct bit_reader_state bit_reader = {bits};
+    struct bit_reader_state bit_reader = bit_reader_init(bits);
 
     //test platform byte order
     uint16_t twobytes = bits[0] << 8 | bits[1];
@@ -76,16 +81,14 @@ int main(int argc, char* argv[])
     DEBUG_PRINT(read_bits_8(&bit_reader, 4));
 
     const int grouping = 3;
-    bit_reader.byte_pointer = bits;
-    bit_reader.bit_offset = 0;
+    bit_reader = bit_reader_init(bits);
     for(int i = 0; i < sizeof(bits) * 8; ++i)
     {
         if(0 == (i % grouping)) printf(" ");
         printf("%d", read_bits_8(&bit_reader, 1));
     }
     printf("\n");
-    bit_reader.byte_pointer = bits;
-    bit_reader.bit_offset = 0;
+    bit_reader = bit_reader_init(bits);
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
@@ -95,14 +98,12 @@ int main(int argc, char* argv[])
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
     DEBUG_PRINT(read_bits_8(&bit_reader, 3));
 
-    bit_reader.byte_pointer = bits;
-    bit_reader.bit_offset = 0;
+    bit_reader = bit_reader_init(bits);
     DEBUG_PRINT(read_bits_8(&bit_reader, 8));
     DEBUG_PRINT(read_bits_8(&bit_reader, 8));
     DEBUG_PRINT(read_bits_8(&bit_reader, 8));
 
-    bit_reader.byte_pointer = bits;
-    bit_reader.bit_offset = 0;
+    bit_reader = bit_reader_init(bits);
     DEBUG_PRINT(read_bits_16(&bit_reader, 4));
     DEBUG_PRINT(read_bits_16(&bit_reader, 16));
     DEBUG_PRINT(read_bits_16(&bit_reader, 4));
